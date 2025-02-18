@@ -30,7 +30,7 @@ func NewDeviceMonitor(path string) *DeviceMonitor {
 func (d *DeviceMonitor) List() error {
 	err := filepath.Walk(d.path, func(path string, info fs.FileInfo, err error) error {
 		if info.IsDir() {
-			klog.Info("%s is dir,skip", path)
+			klog.Infof("%s is dir,skip", path)
 			return nil
 		}
 

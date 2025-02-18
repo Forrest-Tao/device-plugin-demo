@@ -8,8 +8,6 @@ import (
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"os"
 	"path"
-	"path/filepath"
-	"time"
 )
 
 // WatchKubelet restart device plugin when kubelet restarted
@@ -29,7 +27,6 @@ func WatchKubelet(watcher *fsnotify.Watcher, stop chan<- struct{}) error {
 				if !ok {
 					return
 				}
-				printEvent(event)
 				if path.Base(event.Name) == "kubelet.sock" && event.Op == fsnotify.Create {
 					klog.Warning("inotify: kubelet.sock created, restarting.")
 					stop <- struct{}{}
@@ -62,40 +59,4 @@ func listFiles(dir string) error {
 			info.ModTime().Format("2006-01-02 15:04:05"))
 	}
 	return nil
-}
-
-func printEvent(event fsnotify.Event) {
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-
-	fileInfo := "文件已删除"
-	if event.Op != fsnotify.Remove {
-		if info, err := os.Stat(event.Name); err == nil {
-			fileInfo = fmt.Sprintf("大小: %d bytes", info.Size())
-		}
-	}
-
-	op := getOperationType(event.Op)
-
-	klog.Info("[%s] 文件: %-30s 操作: %-10s %s\n",
-		timestamp,
-		filepath.Base(event.Name),
-		op,
-		fileInfo)
-}
-
-func getOperationType(op fsnotify.Op) string {
-	switch {
-	case op&fsnotify.Create == fsnotify.Create:
-		return "创建"
-	case op&fsnotify.Write == fsnotify.Write:
-		return "修改"
-	case op&fsnotify.Remove == fsnotify.Remove:
-		return "删除"
-	case op&fsnotify.Rename == fsnotify.Rename:
-		return "重命名"
-	case op&fsnotify.Chmod == fsnotify.Chmod:
-		return "权限修改"
-	default:
-		return "未知操作"
-	}
 }

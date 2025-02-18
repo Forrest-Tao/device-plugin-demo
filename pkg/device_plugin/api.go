@@ -53,7 +53,7 @@ func (x *XpuDevicePlugin) Allocate(_ context.Context, reqs *pluginapi.AllocateRe
 		klog.Infof("[Allocate] received request: %v", strings.Join(req.DevicesIDs, ","))
 		resp := pluginapi.ContainerAllocateResponse{
 			Envs: map[string]string{
-				"Gopher": strings.Join(req.DevicesIDs, ","),
+				"xpu": strings.Join(req.DevicesIDs, ","),
 			},
 		}
 		ret.ContainerResponses = append(ret.ContainerResponses, &resp)

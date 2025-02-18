@@ -7,6 +7,7 @@ import (
 	"github/forrest-tao/device-plugin-demo/pkg/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"log"
 	"net"
@@ -45,6 +46,7 @@ func connect(socketPath string, timeout time.Duration) (*grpc.ClientConn, error)
 		}),
 	)
 	if err != nil {
+		klog.Errorf("connect exceed,err: %v", err)
 		return nil, err
 	}
 
@@ -73,7 +75,7 @@ func (x *XpuDevicePlugin) Run(wather *fsnotify.Watcher) {
 	go x.server.Serve(sock)
 
 	// Wait for server to start by launching a blocking connection
-	conn, err := connect(common.DeviceSocket, 5*time.Second)
+	conn, err := connect(socket, 5*time.Second)
 	if err != nil {
 		log.Fatal(err)
 	}
