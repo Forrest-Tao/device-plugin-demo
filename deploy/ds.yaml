@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: device-plugin-demo
+  namespace: kube-system
+  labels:
+    app: device-plugin-demo
+spec:
+  selector:
+    matchLabels:
+      app: device-plugin-demo
+  template:
+    metadata:
+      labels:
+        app: device-plugin-demo
+    spec:
+      containers:
+        - name: device-plugin-demo
+          image: forrest-tao/device-plugin-demo:v1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "0.5"
+              memory: "512Mi"
+            requests:
+              cpu: "0.5"
+              memory: "512Mi"
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+            - name: xpu
+              mountPath: /etc/xpu
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: xpu
+          hostPath:
+            path: /etc/xpu
